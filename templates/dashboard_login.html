@@ -14,7 +14,7 @@
                     <div class="alert alert-danger">Incorrect username or password.</div>
                 {% endif %}
 
-                <form method="post" class="contact-form">
+                <form method="post" action="{% url 'dashboard_login' %}" class="contact-form">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Username</label>
