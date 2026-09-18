@@ -33,7 +33,9 @@
             <label class="form-label">Image</label>
             {{ form.image }}
             {% if form.instance.image %}
-                <img src="{{ form.instance.image.url }}" height="60" class="mt-2 rounded">
+                <div class="mt-2">
+                    <img src="{{ form.instance.image.url }}" height="80" class="rounded border" alt="{{ form.instance.name }}">
+                </div>
             {% endif %}
         </div>
         <div class="form-check mb-2">
