@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-import dj_database_url
+from importlib import import_module
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,7 +16,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    
+    # Cloudinary storage apps (staticfiles-er upore thaka lagbe)
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     
     'accounts',
     'config',
@@ -45,7 +49,7 @@ ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'BACKEND': 'django.template.backends.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -61,11 +65,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+_database_url_parser = None
+try:
+    _database_url_parser = import_module('dj_database_url').config
+except ImportError:
+    pass
+
 DATABASES = {
-    'default': dj_database_url.config(
+    'default': _database_url_parser(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600
-    )
+    ) if _database_url_parser else {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -101,6 +114,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Cloudinary Setup
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'vzopskbs',
+    'API_KEY': '973928415116814',        # Cloudinary "View API Keys" theke paoar por ekhane boshaben
+    'API_SECRET': 'SunZw5ApmGZRngaclbUH8tByA3M'    # Cloudinary "View API Keys" theke paoar por ekhane boshaben
+}
+
+# Cloudinary Storage for Uploaded Media Files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/accounts/login/'
@@ -110,5 +133,5 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
-    'https://resturent-site-v9ha.onrender.com'  # ekhane apnar render-er asol URL-ti boshiye din
+    'https://resturent-site-v9ha.onrender.com'
 ]
