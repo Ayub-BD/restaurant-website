@@ -49,7 +49,7 @@ ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.DjangoTemplates',
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',  # Fixed: Full class path
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -115,12 +115,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary Setup
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'vzopskbs',
-    'API_KEY': '973928415116814',
-    'API_SECRET': 'SunZw5ApmGZRngaclbUH8tByA3M',
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'vzopskbs'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '973928415116814'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'SunZw5ApmGZRngaclbUH8tByA3M'),
 }
 
-# Media & Static Storage Settings (Django 4.2+ Support)
+# Media & Static Storage Settings
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -130,8 +130,9 @@ STORAGES = {
     },
 }
 
-# Compatibility for older django settings
+# Compatibility for older django & cloudinary_storage package
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # Fixed: Added missing setting
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
