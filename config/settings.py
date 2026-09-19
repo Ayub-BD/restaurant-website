@@ -11,9 +11,6 @@ DEBUG = 'RENDER' not in os.environ
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
-    # Cloudinary staticfiles-er UPOR-e thaka lagbe
-    'cloudinary_storage',
-    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -21,6 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # Cloudinary storage
+    'cloudinary_storage',
     'cloudinary',
     
     'accounts',
@@ -115,25 +114,29 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Cloudinary Setup
+# Cloudinary Setup for User Media Files
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'vzopskbs'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '973928415116814'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'SunZw5ApmGZRngaclbUH8tByA3M'),
 }
 
-# Cloudinary handling both media and static files to permanently fix build and CSS issues
+# Storage Configuration
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "cloudinary_storage.storage.StaticHashedCloudinaryStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Crash avoid করার জন্য সবচেয়ে জরুরি ২টা লাইন
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_USE_FINDERS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
