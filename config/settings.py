@@ -109,7 +109,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -117,11 +116,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Cloudinary Setup
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'vzopskbs',
-    'API_KEY': '973928415116814',        # Cloudinary "View API Keys" theke paoar por ekhane boshaben
-    'API_SECRET': 'SunZw5ApmGZRngaclbUH8tByA3M'    # Cloudinary "View API Keys" theke paoar por ekhane boshaben
+    'API_KEY': '973928415116814',
+    'API_SECRET': 'SunZw5ApmGZRngaclbUH8tByA3M',
 }
 
-# Cloudinary Storage for Uploaded Media Files
+# Media & Static Storage Settings (Django 4.2+ Support)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# Compatibility for older django settings
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -129,8 +138,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+
+# Security settings ( conditional based on environment )
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://resturent-site-v9ha.onrender.com'
