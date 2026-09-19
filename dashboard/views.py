@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from django.contrib import messages
-from django.db.models import Sum
+from django.db import models
+from django.db.models import Sum, ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -116,8 +117,11 @@ def menu_category_delete(request, category_id):
                 "Move or delete those items first.",
             )
         else:
-            category.delete()
-            messages.success(request, "Category deleted.")
+            try:
+                category.delete()
+                messages.success(request, "Category deleted.")
+            except ProtectedError:
+                messages.error(request, f"Can't delete '{category.name}' because it's linked to other items.")
     return redirect("dashboard_menu")
 
 
@@ -152,8 +156,17 @@ def menu_item_edit(request, item_id):
 def menu_item_delete(request, item_id):
     item = get_object_or_404(MenuItem, pk=item_id)
     if request.method == "POST":
-        item.delete()
-        messages.success(request, "Menu item deleted.")
+        try:
+            item.delete()
+            messages.success(request, "Menu item deleted successfully.")
+        except ProtectedError:
+            messages.error(
+                request, 
+                f"Cannot delete '{item.name}' because it is linked to existing customer orders."
+            )
+        except Exception as e:
+            messages.error(request, f"An error occurred while deleting: {str(e)}")
+
     return redirect("dashboard_menu")
 
 
@@ -196,8 +209,11 @@ def offer_edit(request, offer_id):
 def offer_delete(request, offer_id):
     offer = get_object_or_404(Offer, pk=offer_id)
     if request.method == "POST":
-        offer.delete()
-        messages.success(request, "Offer deleted.")
+        try:
+            offer.delete()
+            messages.success(request, "Offer deleted.")
+        except ProtectedError:
+            messages.error(request, f"Cannot delete '{offer.title}' because it is linked to active data.")
     return redirect("dashboard_offers")
 
 
@@ -452,8 +468,11 @@ def table_delete(request, table_id):
                 f"Can't delete table {table.table_number} -- it has order/reservation history.",
             )
         else:
-            table.delete()
-            messages.success(request, "Table deleted.")
+            try:
+                table.delete()
+                messages.success(request, "Table deleted.")
+            except ProtectedError:
+                messages.error(request, f"Cannot delete table {table.table_number} because it is linked to history.")
     return redirect("dashboard_tables")
 
 
